@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="metadata.scraper.moviesetartwork"
+       name="Movie Set Artwork Scraper"
+       version="0.0.1"
+       provider-name="lsellens">
+  <requires>
+    <import addon="xbmc.addon" version="14.0.0"/>
+    <import addon="xbmc.python" version="2.19.0"/>
+    <import addon="xbmc.json" version="7.0.0"/>
+  </requires>
+  <extension point="xbmc.python.script"
+             library="default.py">
+        <provides>executable</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary>Movie Set Artwork Scraper</summary>
+    <description>This addon will scrape set artwork from TheMovieDB.org.
+    This product uses the TMDb API but is not endorsed or certified by TMDb.</description>
+    <platform>linux</platform>
+  </extension>
+</addon>

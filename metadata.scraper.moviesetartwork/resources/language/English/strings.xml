@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<strings>
+  <string id="32000">Sets Artwork Scraper</string>
+  <string id="32001">Poster Size</string>
+  <string id="32002">Fanart Size</string>
+  <string id="32003">Overwrite Existing Downloaded Artwork</string>
+  <string id="32004">Scrape Artwork Now</string>
+</strings>
