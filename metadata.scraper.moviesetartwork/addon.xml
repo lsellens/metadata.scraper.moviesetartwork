@@ -16,6 +16,12 @@
     <summary>Movie Set Artwork Scraper</summary>
     <description>This addon will scrape set artwork from TheMovieDB.org.
     This product uses the TMDb API but is not endorsed or certified by TMDb.</description>
-    <platform>linux</platform>
+    <platform>all</platform>
+    <license>GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007</license>
+    <source>https://github.com/lsellens/metadata.scraper.moviesetartwork</source>
+    <news>0.0.1 - inital release</news>
+    <assets>
+      <icon>resources/icon.png</icon>
+    </assets>
   </extension>
 </addon>
