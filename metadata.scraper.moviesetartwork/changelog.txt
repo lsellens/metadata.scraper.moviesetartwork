@@ -1,2 +1,5 @@
+0.0.2
+- Fix for set with "/" in name ie "28 Days/Weeks Later Collection"
+
 0.0.1
 - Initial version
