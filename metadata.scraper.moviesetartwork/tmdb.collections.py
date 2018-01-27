@@ -1,6 +1,5 @@
 import xbmc
 import xbmcaddon
-import xbmcvfs
 import xbmcgui
 import urllib
 import json
@@ -10,10 +9,8 @@ __addon__ = xbmcaddon.Addon(id='metadata.scraper.moviesetartwork')
 __addonhome__ = xbmc.translatePath(__addon__.getAddonInfo('profile'))
 __addonid__ = __addon__.getAddonInfo('id')
 __icon__ = __addon__.getAddonInfo('icon')
-image_dir = xbmc.translatePath(__addonhome__ + 'movie_set_artwork/')
 poster_size = (__addon__.getSetting('poster_size'))
 backdrop_size = (__addon__.getSetting('backdrop_size'))
-overwrite = (__addon__.getSetting('overwrite').lower() == 'true')
 api_key = '337431b553474aa71c9274d439a58d49'
 tmdb_url = 'https://api.themoviedb.org/3/'
 tmdb_config = json.load(urllib.urlopen('{0}configuration?api_key={1}'.format(tmdb_url, api_key)))
@@ -32,44 +29,23 @@ def jsonrpc(method, *args):
     return json_cmd
 
 
-def searchset(setname):
+def searchset(setid, setname):
     data = json.load(urllib.urlopen(
         '{0}search/collection?api_key={2}&language=en-US&query={1}&page=1'.format(tmdb_url, setname, api_key)))
     for name in data['results']:
         if name['name'] == setname:
-            cleansetname = setname.replace(' ', '.').replace('/', '.')
-            poster = name['poster_path']
-            backdrop = name['backdrop_path']
             try:
-                if overwrite or not xbmcvfs.exists(image_dir + cleansetname + '.poster.jpg'):
-                    urllib.urlretrieve(tmdb_config['images']['secure_base_url'] + poster_size + '/' + poster,
-                                       image_dir + cleansetname + '.poster.jpg')
-                    xbmc.log('Movie Art Scraper: Downloaded poster for {}.'.format(setname), level=xbmc.LOGDEBUG)
+                parameters = {'setid': setid, 'art': {
+                    'poster': tmdb_config['images']['secure_base_url'] + poster_size + '/' + name['poster_path'],
+                    'fanart': tmdb_config['images']['secure_base_url'] + backdrop_size + '/' + name['backdrop_path']}}
+                response = json.loads(xbmc.executeJSONRPC(jsonrpc('VideoLibrary.SetMovieSetDetails', parameters)))
+                if response['result'] == 'OK':
+                    xbmc.log('Movie Art Scraper: Set artwork for {0}'.format(setname), level=xbmc.LOGDEBUG)
             except Exception, e:
-                xbmc.log('Movie Art Scraper: Error downloading poster for {}.'.format(setname), level=xbmc.LOGERROR)
-                xbmc.log(str(e), level=xbmc.LOGERROR)
-                pass
-            try:
-                if overwrite or not xbmcvfs.exists(image_dir + cleansetname + '.fanart.jpg'):
-                    urllib.urlretrieve(tmdb_config['images']['secure_base_url'] + backdrop_size + '/' + backdrop,
-                                       image_dir + cleansetname + '.fanart.jpg')
-                    xbmc.log('Movie Art Scraper: Downloaded fanart for {}.'.format(setname), level=xbmc.LOGDEBUG)
-            except Exception, e:
-                xbmc.log('Movie Art Scraper: Error downloading fanart for {}.'.format(setname), level=xbmc.LOGERROR)
+                xbmc.log('Movie Art Scraper: Error setting artwork for {0}.'.format(setname), level=xbmc.LOGERROR)
                 xbmc.log(str(e), level=xbmc.LOGERROR)
                 pass
             break
-
-
-def replaceart(setid, setname, art_type):
-    parameters = {'setid': setid, 'art': {art_type: image_dir + setname + '.' + art_type + '.jpg'}}
-    response = json.loads(xbmc.executeJSONRPC(jsonrpc('VideoLibrary.SetMovieSetDetails', parameters)))
-    if response['result'] == 'OK':
-        xbmc.log('Movie Art Scraper: Set {0} for {1} to {2}{1}.{0}.jpg'.format(art_type, setname, image_dir),
-                 level=xbmc.LOGDEBUG)
-    else:
-        xbmc.log('Movie Art Scraper: Error Setting {0} for {1} to {2}{1}.{0}.jpg'.format(art_type, setname, image_dir),
-                 level=xbmc.LOGERROR)
 
 
 def readsets(mincount):
@@ -86,23 +62,11 @@ def readsets(mincount):
             if len(setdetails['result']['setdetails']['movies']) >= mincount:
                 done[name['label']] = name['setid']
         for name in done:
-            cleanname = name.replace(' ', '.').replace('/', '.')
-            if overwrite or (not xbmcvfs.exists(image_dir + cleanname + '.poster.jpg') or not xbmcvfs.exists(
-                            image_dir + cleanname + '.fanart.jpg')):
-                searchset(name)
-                xbmc.sleep(250)
+            searchset(done[name], name)
+            xbmc.sleep(250)
         xbmc.log('Movie Art Scraper: Finished scraping artwork for {} sets.'.format(len(done)), level=xbmc.LOGDEBUG)
         xbmc.executebuiltin('XBMC.Notification(Movie Art Scraper, Done scraping set artwork for {1} sets., 10000, {0})'
                             .format(__icon__, len(done)))
-        for name in done:
-            cleanname = name.replace(' ', '.').replace('/', '.')
-            if xbmcvfs.exists(image_dir + cleanname + '.poster.jpg'):
-                replaceart(done[name], cleanname, 'poster')
-            if xbmcvfs.exists(image_dir + cleanname + '.fanart.jpg'):
-                replaceart(done[name], cleanname, 'fanart')
-        xbmc.log('Movie Art Scraper: Finished setting artwork.', level=xbmc.LOGDEBUG)
-        xbmc.executebuiltin(
-            'XBMC.Notification(Movie Art Scraper, Finished setting artwork., 10000, {0})'.format(__icon__))
     else:
         xbmc.log('Movie Art Scraper: No sets found.', level=xbmc.LOGERROR)
         xbmc.executebuiltin('XBMC.Notification(Movie Art Scraper, No sets found, 10000, {0})'.format(__icon__))
@@ -121,9 +85,6 @@ if not groupmoviesets['result']['value']:
     xbmcgui.Window(10000).clearProperty(__addonid__ + '.running')
     exit(1)
 
-# make dir to store artwork in if it doesn't exist already
-if not xbmcvfs.exists(image_dir):
-    xbmcvfs.mkdirs(image_dir)
 
 # check if single item sets are enabled if not then only get artwork if 2 or more exist in a set
 if not groupsingleitemsets['result']['value']:
