@@ -3,6 +3,7 @@ import xbmcaddon
 import xbmcgui
 import urllib
 import json
+import time
 
 # get settings and paths
 __addon__ = xbmcaddon.Addon(id='metadata.scraper.moviesetartwork')
@@ -10,7 +11,7 @@ __addonhome__ = xbmc.translatePath(__addon__.getAddonInfo('profile'))
 __addonid__ = __addon__.getAddonInfo('id')
 __icon__ = __addon__.getAddonInfo('icon')
 poster_size = (__addon__.getSetting('poster_size'))
-backdrop_size = (__addon__.getSetting('backdrop_size'))
+fanart_size = (__addon__.getSetting('fanart_size'))
 api_key = '337431b553474aa71c9274d439a58d49'
 tmdb_url = 'https://api.themoviedb.org/3/'
 tmdb_config = json.load(urllib.urlopen('{0}configuration?api_key={1}'.format(tmdb_url, api_key)))
@@ -30,21 +31,40 @@ def jsonrpc(method, *args):
 
 
 def searchset(setid, setname):
-    data = json.load(urllib.urlopen(
-        '{0}search/collection?api_key={2}&language=en-US&query={1}&page=1'.format(tmdb_url, setname, api_key)))
+    headers = urllib.urlopen(
+        '{0}search/collection?api_key={2}&language=en-US&query={1}&page=1'.format(tmdb_url, setname, api_key))
+    if int(headers.info().get('x-ratelimit-remaining')) <= 1:
+        xbmc.log('Movie Art Scraper: Hit TMDB api rate limit. Sleeping now', level=xbmc.LOGDEBUG)
+        time.sleep(int(headers.info().get('x-ratelimit-reset')) - int(time.time()))
+    data = json.load(headers)
     for name in data['results']:
         if name['name'] == setname:
             try:
                 parameters = {'setid': setid, 'properties': ['art']}
                 response = json.loads(xbmc.executeJSONRPC(jsonrpc('VideoLibrary.GetMovieSetDetails', parameters)))
                 current_poster = urllib.unquote(response['result']['setdetails']['art']['poster']).lstrip('image://')
-                remote_poster = tmdb_config['images']['secure_base_url'] + poster_size + name['poster_path'] + '/'
+                if name['poster_path']:
+                    remote_poster = tmdb_config['images']['secure_base_url'] + poster_size + name['poster_path'] + '/'
+                else:
+                    remote_poster = ''
                 current_fanart = urllib.unquote(response['result']['setdetails']['art']['fanart']).lstrip('image://')
-                remote_fanart = tmdb_config['images']['secure_base_url'] + backdrop_size + name['backdrop_path'] + '/'
+                if name['backdrop_path']:
+                    remote_fanart = tmdb_config['images']['secure_base_url'] + fanart_size + name['backdrop_path'] + '/'
+                else:
+                    remote_fanart = ''
                 if current_poster != remote_poster or current_fanart != remote_fanart:
-                    parameters = {'setid': setid, 'art': {
-                        'poster': tmdb_config['images']['secure_base_url'] + poster_size + name['poster_path'],
-                        'fanart': tmdb_config['images']['secure_base_url'] + backdrop_size + name['backdrop_path']}}
+                    if remote_poster and remote_fanart:
+                        parameters = {'setid': setid, 'art': {
+                            'poster': tmdb_config['images']['secure_base_url'] + poster_size + name['poster_path'],
+                            'fanart': tmdb_config['images']['secure_base_url'] + fanart_size + name['backdrop_path']}}
+                    elif remote_poster and not remote_fanart:
+                        parameters = {'setid': setid, 'art': {
+                            'poster': tmdb_config['images']['secure_base_url'] + poster_size + name['poster_path']}}
+                    elif remote_fanart and not remote_poster:
+                        parameters = {'setid': setid, 'art': {
+                            'fanart': tmdb_config['images']['secure_base_url'] + fanart_size + name['backdrop_path']}}
+                    else:
+                        break
                     response = json.loads(xbmc.executeJSONRPC(jsonrpc('VideoLibrary.SetMovieSetDetails', parameters)))
                     if response['result'] == 'OK':
                         xbmc.log('Movie Art Scraper: Set artwork for {0}'.format(setname), level=xbmc.LOGDEBUG)
@@ -70,7 +90,6 @@ def readsets(mincount):
                 done[name['label']] = name['setid']
         for name in done:
             searchset(done[name], name)
-            xbmc.sleep(250)
         xbmc.log('Movie Art Scraper: Finished scraping artwork for {} sets.'.format(len(done)), level=xbmc.LOGDEBUG)
         xbmc.executebuiltin('XBMC.Notification(Movie Art Scraper, Done scraping set artwork for {1} sets., 10000, {0})'
                             .format(__icon__, len(done)))
