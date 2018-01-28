@@ -24,8 +24,8 @@ def jsonrpc(method, *args):
     if args:
         values["params"] = args
     json_cmd = json.dumps(values, sort_keys=True, separators=(',', ':'))
-    json_cmd = json_cmd.replace('[', '')
-    json_cmd = json_cmd.replace(']', '')
+    json_cmd = json_cmd.replace('[{', '{')
+    json_cmd = json_cmd.replace('}]', '}')
     return json_cmd
 
 
@@ -35,12 +35,19 @@ def searchset(setid, setname):
     for name in data['results']:
         if name['name'] == setname:
             try:
-                parameters = {'setid': setid, 'art': {
-                    'poster': tmdb_config['images']['secure_base_url'] + poster_size + '/' + name['poster_path'],
-                    'fanart': tmdb_config['images']['secure_base_url'] + backdrop_size + '/' + name['backdrop_path']}}
-                response = json.loads(xbmc.executeJSONRPC(jsonrpc('VideoLibrary.SetMovieSetDetails', parameters)))
-                if response['result'] == 'OK':
-                    xbmc.log('Movie Art Scraper: Set artwork for {0}'.format(setname), level=xbmc.LOGDEBUG)
+                parameters = {'setid': setid, 'properties': ['art']}
+                response = json.loads(xbmc.executeJSONRPC(jsonrpc('VideoLibrary.GetMovieSetDetails', parameters)))
+                current_poster = urllib.unquote(response['result']['setdetails']['art']['poster']).lstrip('image://')
+                remote_poster = tmdb_config['images']['secure_base_url'] + poster_size + name['poster_path'] + '/'
+                current_fanart = urllib.unquote(response['result']['setdetails']['art']['fanart']).lstrip('image://')
+                remote_fanart = tmdb_config['images']['secure_base_url'] + backdrop_size + name['backdrop_path'] + '/'
+                if current_poster != remote_poster or current_fanart != remote_fanart:
+                    parameters = {'setid': setid, 'art': {
+                        'poster': tmdb_config['images']['secure_base_url'] + poster_size + name['poster_path'],
+                        'fanart': tmdb_config['images']['secure_base_url'] + backdrop_size + name['backdrop_path']}}
+                    response = json.loads(xbmc.executeJSONRPC(jsonrpc('VideoLibrary.SetMovieSetDetails', parameters)))
+                    if response['result'] == 'OK':
+                        xbmc.log('Movie Art Scraper: Set artwork for {0}'.format(setname), level=xbmc.LOGDEBUG)
             except Exception, e:
                 xbmc.log('Movie Art Scraper: Error setting artwork for {0}.'.format(setname), level=xbmc.LOGERROR)
                 xbmc.log(str(e), level=xbmc.LOGERROR)
@@ -84,7 +91,6 @@ if not groupmoviesets['result']['value']:
         'XBMC.Notification(Movie Art Scraper, Movies sets are not enabled., 10000, {0})'.format(__icon__))
     xbmcgui.Window(10000).clearProperty(__addonid__ + '.running')
     exit(1)
-
 
 # check if single item sets are enabled if not then only get artwork if 2 or more exist in a set
 if not groupsingleitemsets['result']['value']:
