@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="metadata.scraper.moviesetartwork"
        name="Movie Set Artwork Scraper"
-       version="0.0.3"
+       version="0.0.4"
        provider-name="lsellens">
   <requires>
     <import addon="xbmc.addon" version="14.0.0"/>
@@ -19,7 +19,7 @@
     <platform>all</platform>
     <license>GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007</license>
     <source>https://github.com/lsellens/metadata.scraper.moviesetartwork</source>
-    <news>0.0.3 - Fix to work with shared mysql libraries</news>
+    <news>0.0.4 - TMDB removed rate limits</news>
     <assets>
       <icon>resources/icon.png</icon>
     </assets>

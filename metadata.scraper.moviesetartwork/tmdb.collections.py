@@ -3,7 +3,6 @@ import xbmcaddon
 import xbmcgui
 import urllib
 import json
-import time
 
 # get settings and paths
 __addon__ = xbmcaddon.Addon(id='metadata.scraper.moviesetartwork')
@@ -33,9 +32,6 @@ def jsonrpc(method, *args):
 def searchset(setid, setname):
     headers = urllib.urlopen(
         '{0}search/collection?api_key={2}&language=en-US&query={1}&page=1'.format(tmdb_url, setname, api_key))
-    if int(headers.info().get('x-ratelimit-remaining')) <= 1:
-        xbmc.log('Movie Art Scraper: Hit TMDB api rate limit. Sleeping now', level=xbmc.LOGDEBUG)
-        time.sleep(int(headers.info().get('x-ratelimit-reset')) - int(time.time()))
     data = json.load(headers)
     for name in data['results']:
         if name['name'] == setname:

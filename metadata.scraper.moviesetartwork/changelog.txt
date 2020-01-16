@@ -1,3 +1,6 @@
+0.0.4
+- TMDB removed rate limits
+
 0.0.3
 - Fix to work with shared mysql libraries. No longer downloads artwork locally instead just inserts image url into db.
 
