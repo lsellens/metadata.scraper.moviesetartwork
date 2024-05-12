@@ -1,9 +1,10 @@
 import xbmc
 import xbmcaddon
 import xbmcgui
+import xbmcvfs
 
 __addon__ = xbmcaddon.Addon(id='metadata.scraper.moviesetartwork')
-__addonhome__ = xbmc.translatePath(__addon__.getAddonInfo('profile'))
+__addonhome__ = xbmcvfs.translatePath(__addon__.getAddonInfo('profile'))
 __addonid__ = __addon__.getAddonInfo('id')
 __icon__ = __addon__.getAddonInfo('icon')
 
