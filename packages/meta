@@ -1,4 +1,4 @@
 PKG_NAME="metadata.scraper.moviesetartwork"
 PKG_VERSION="0.0"
-PKG_REV="4"
+PKG_REV="5"
 PKG_DEPENDS=""
