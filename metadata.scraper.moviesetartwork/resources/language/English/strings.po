@@ -1,0 +1,46 @@
+# XBMC Media Center language file
+# Addon Name: Movie Set Artwork Scraper
+# Addon id: metadata.scraper.moviesetartwork
+# Addon version: 0.0.5
+# Addon Provider: lsellens
+msgid ""
+msgstr ""
+"Project-Id-Version: XBMC-Addons\n"
+"Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
+"POT-Creation-Date: 2024-05-16 15:46+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+msgctxt "Addon Summary"
+msgid "Movie Set Artwork Scraper"
+msgstr ""
+
+msgctxt "Addon Description"
+msgid "This addon will scrape set artwork from TheMovieDB.org."
+msgstr ""
+
+msgctxt "Addon Disclaimer"
+msgid "This product uses the TMDb API but is not endorsed or certified by TMDb."
+msgstr ""
+
+msgctxt "#32000"
+msgid "Sets Artwork Scraper"
+msgstr ""
+
+msgctxt "#32001"
+msgid "Poster Size"
+msgstr ""
+
+msgctxt "#32002"
+msgid "Fanart Size"
+msgstr ""
+
+msgctxt "#32003"
+msgid "Scrape Artwork Now"
+msgstr ""

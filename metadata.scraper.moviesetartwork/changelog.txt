@@ -1,3 +1,6 @@
+0.0.5
+- python 3 compatibility
+
 0.0.4
 - TMDB removed rate limits
 
