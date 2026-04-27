@@ -12,4 +12,3 @@ if __name__ == '__main__':
         __addon__.openSettings()
     else:
         xbmc.executebuiltin('Notification(Movie Art Scraper, Script is still running. Please wait., 10000, {0})'.format(__icon__))
-

@@ -59,12 +59,12 @@ def searchset(setid, setname):
                     current_poster = ''
                     current_fanart = ''
                 xbmc.log('Received response from GetMovieSetDetails: {}'.format(response), level=xbmc.LOGDEBUG)
-                
+
                 if name['poster_path']:
                     remote_poster = tmdb_config['images']['secure_base_url'] + poster_size + name['poster_path'] + '/'
                 else:
                     remote_poster = ''
-                
+
                 if name['backdrop_path']:
                     remote_fanart = tmdb_config['images']['secure_base_url'] + fanart_size + name['backdrop_path'] + '/'
                 else:
@@ -90,9 +90,7 @@ def searchset(setid, setname):
             except Exception as e:
                 xbmc.log('Movie Art Scraper: Error setting artwork for {0}.'.format(setname), level=xbmc.LOGERROR)
                 xbmc.log(str(e), level=xbmc.LOGERROR)
-                pass
             break
-
 
 
 def readsets(mincount):
@@ -122,7 +120,7 @@ try:
     groupmoviesets = json.loads(xbmc.executeJSONRPC(jsonrpc('Settings.GetSettingValue', parameters)))
     parameters = {'setting': 'videolibrary.groupsingleitemsets'}
     groupsingleitemsets = json.loads(xbmc.executeJSONRPC(jsonrpc('Settings.GetSettingValue', parameters)))
-    
+
     # check if sets are enabled in kodi if not then exit
     if not groupmoviesets['result']['value']:
         xbmc.log('Movie Art Scraper: Movie sets are not enabled. Please enable and rerun.', level=xbmc.LOGERROR)
@@ -130,7 +128,7 @@ try:
             'Notification(Movie Art Scraper, Movies sets are not enabled., 10000, {0})'.format(__icon__))
         xbmcgui.Window(10000).clearProperty(__addonid__ + '.running')
         exit(1)
-    
+
     # check if single item sets are enabled if not then only get artwork if 2 or more exist in a set
     if not groupsingleitemsets['result']['value']:
         xbmc.log('Movie Art Scraper: Single item sets are not enabled.', level=xbmc.LOGDEBUG)
@@ -138,7 +136,7 @@ try:
     else:
         xbmc.log('Movie Art Scraper: Single item sets are enabled.', level=xbmc.LOGDEBUG)
         readsets(1)
-    
+
     xbmcgui.Window(10000).clearProperty(__addonid__ + '.running')
     exit(0)
 except Exception as e:
