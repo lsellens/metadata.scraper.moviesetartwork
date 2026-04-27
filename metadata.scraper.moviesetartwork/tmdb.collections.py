@@ -46,11 +46,13 @@ def searchset(setid, setname):
                 if 'art' in response['result']['setdetails']:
                     art = response['result']['setdetails']['art']
                     if 'poster' in art:
-                        current_poster = urllib.parse.unquote(art['poster']).lstrip('image://')
+                        url = urllib.parse.unquote(art['poster'])
+                        current_poster = url[len('image://'):] if url.startswith('image://') else url
                     else:
                         current_poster = ''
                     if 'fanart' in art:
-                        current_fanart = urllib.parse.unquote(art['fanart']).lstrip('image://')
+                        url = urllib.parse.unquote(art['fanart'])
+                        current_fanart = url[len('image://'):] if url.startswith('image://') else url
                     else:
                         current_fanart = ''
                 else:
@@ -141,5 +143,7 @@ try:
     exit(0)
 except Exception as e:
     xbmc.log('Movie Art Scraper: An unexpected error occurred: {}'.format(str(e)), level=xbmc.LOGERROR)
+    xbmc.executebuiltin(
+        'Notification(Movie Art Scraper, An error occurred. Check log., 10000, {0})'.format(__icon__))
     xbmcgui.Window(10000).clearProperty(__addonid__ + '.running')
     raise
