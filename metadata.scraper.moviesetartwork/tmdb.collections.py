@@ -13,8 +13,6 @@ poster_size = (__addon__.getSetting('poster_size'))
 fanart_size = (__addon__.getSetting('fanart_size'))
 api_key = '337431b553474aa71c9274d439a58d49'
 tmdb_url = 'https://api.themoviedb.org/3/'
-tmdb_config = json.load(urllib.request.urlopen('{0}configuration?api_key={1}'.format(tmdb_url, api_key)))
-done = {}
 # Ugly hack so script can't be run while running
 xbmcgui.Window(10000).setProperty(__addonid__ + '.running', 'True')
 
@@ -95,6 +93,7 @@ def searchset(setid, setname):
 
 def readsets(mincount):
     # collect set info from local system using json and run search for artwork
+    done = {}
     moviesets = json.loads(xbmc.executeJSONRPC(jsonrpc('VideoLibrary.GetMovieSets')))
     if 'result' in moviesets and 'sets' in moviesets['result']:
         nsets = moviesets['result']['limits']['total']
@@ -116,6 +115,7 @@ def readsets(mincount):
         xbmc.executebuiltin('Notification(Movie Art Scraper, No sets found, 10000, {0})'.format(__icon__))
 
 try:
+    tmdb_config = json.load(urllib.request.urlopen('{0}configuration?api_key={1}'.format(tmdb_url, api_key)))
     parameters = {'setting': 'videolibrary.groupmoviesets'}
     groupmoviesets = json.loads(xbmc.executeJSONRPC(jsonrpc('Settings.GetSettingValue', parameters)))
     parameters = {'setting': 'videolibrary.groupsingleitemsets'}
