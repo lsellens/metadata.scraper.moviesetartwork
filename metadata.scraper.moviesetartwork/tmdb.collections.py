@@ -11,28 +11,34 @@ __addonid__ = __addon__.getAddonInfo('id')
 __icon__ = __addon__.getAddonInfo('icon')
 poster_size = (__addon__.getSetting('poster_size'))
 fanart_size = (__addon__.getSetting('fanart_size'))
-api_key = '337431b553474aa71c9274d439a58d49'
+bearer_token = (
+    'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzMzc0MzFiNTUzNDc0YWE3MWM5Mjc0ZDQzOWE1OGQ0OSIsIm5iZiI6'
+    'MTQ5MzE2OTYzNi45MzQsInN1YiI6IjU4ZmZmNWRmYzNhMzY4MGZmZDAwNDY1OCIsInNjb3BlcyI6WyJhcGlfcm'
+    'VhZCJdLCJ2ZXJzaW9uIjoxfQ.ozj6jWFJ2svdw9YM_hiQP586_cYuQ5dkkSX413WjY7o'
+)
 tmdb_url = 'https://api.themoviedb.org/3/'
 # Ugly hack so script can't be run while running
 xbmcgui.Window(10000).setProperty(__addonid__ + '.running', 'True')
 
 
-def jsonrpc(method, *args):
+def tmdb_get(url):
+    req = urllib.request.Request(url)
+    req.add_header('Authorization', 'Bearer ' + bearer_token)
+    req.add_header('Accept', 'application/json')
+    return json.load(urllib.request.urlopen(req))
+
+
+def jsonrpc(method, params=None):
     values = {"jsonrpc": "2.0", "id": "1", "method": method}
-    if args:
-        values["params"] = args
-    json_cmd = json.dumps(values, sort_keys=True, separators=(',', ':'))
-    json_cmd = json_cmd.replace('[{', '{')
-    json_cmd = json_cmd.replace('}]', '}')
-    return json_cmd
+    if params is not None:
+        values["params"] = params
+    return json.dumps(values, sort_keys=True, separators=(',', ':'))
 
 
 def searchset(setid, setname):
     encoded_setname = urllib.parse.quote(setname)
     xbmc.log('Searching for artwork for set: {}'.format(setname), level=xbmc.LOGDEBUG)
-    headers = urllib.request.urlopen(
-        '{0}search/collection?api_key={2}&language=en-US&query={1}&page=1'.format(tmdb_url, encoded_setname, api_key))
-    data = json.load(headers)
+    data = tmdb_get('{0}search/collection?language=en-US&query={1}&page=1'.format(tmdb_url, encoded_setname))
     xbmc.log('Received data from TMDB API: {}'.format(data), level=xbmc.LOGDEBUG)
     if not data['results']:
         xbmc.log('No results found for set: {}'.format(setname), level=xbmc.LOGERROR)
@@ -117,7 +123,7 @@ def readsets(mincount):
         xbmc.executebuiltin('Notification(Movie Art Scraper, No sets found, 10000, {0})'.format(__icon__))
 
 try:
-    tmdb_config = json.load(urllib.request.urlopen('{0}configuration?api_key={1}'.format(tmdb_url, api_key)))
+    tmdb_config = tmdb_get('{0}configuration'.format(tmdb_url))
     parameters = {'setting': 'videolibrary.groupmoviesets'}
     groupmoviesets = json.loads(xbmc.executeJSONRPC(jsonrpc('Settings.GetSettingValue', parameters)))
     parameters = {'setting': 'videolibrary.groupsingleitemsets'}
