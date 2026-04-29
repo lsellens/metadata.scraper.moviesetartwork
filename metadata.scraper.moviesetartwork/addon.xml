@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="metadata.scraper.moviesetartwork" name="Movie Set Artwork Scraper" version="0.0.5" provider-name="lsellens">
+<addon id="metadata.scraper.moviesetartwork" name="Movie Set Artwork Scraper" version="0.0.6" provider-name="lsellens">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="xbmc.json" version="7.0.0"/>
@@ -15,7 +15,7 @@
     <platform>all</platform>
     <license>GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007</license>
     <source>https://github.com/lsellens/metadata.scraper.moviesetartwork</source>
-    <news>0.0.5 - python 3 compatibility</news>
+    <news>0.0.6 - Use bearer token for auth, some minor bug fixes</news>
     <assets>
       <icon>resources/icon.png</icon>
     </assets>

@@ -1,3 +1,7 @@
+0.0.6
+- Use bearer token for auth
+- minor bug fixes
+
 0.0.5
 - python 3 compatibility
 
