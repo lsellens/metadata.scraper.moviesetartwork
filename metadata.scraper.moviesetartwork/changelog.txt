@@ -3,7 +3,7 @@
 - minor bug fixes
 
 0.0.5
-- python 3 compatibility
+- Added better logging, and error handling
 
 0.0.4
 - TMDB removed rate limits

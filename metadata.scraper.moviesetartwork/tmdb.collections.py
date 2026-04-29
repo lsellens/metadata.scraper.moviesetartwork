@@ -1,9 +1,10 @@
 import xbmc
 import xbmcaddon
 import xbmcgui
-import urllib.request
-import urllib.parse
 import json
+
+from urllib2 import urlopen, Request
+from urllib import quote, unquote
 
 # get settings and paths
 __addon__ = xbmcaddon.Addon(id='metadata.scraper.moviesetartwork')
@@ -22,10 +23,10 @@ xbmcgui.Window(10000).setProperty(__addonid__ + '.running', 'True')
 
 
 def tmdb_get(url):
-    req = urllib.request.Request(url)
+    req = Request(url)
     req.add_header('Authorization', 'Bearer ' + bearer_token)
     req.add_header('Accept', 'application/json')
-    return json.load(urllib.request.urlopen(req))
+    return json.load(urlopen(req))
 
 
 def jsonrpc(method, params=None):
@@ -36,7 +37,7 @@ def jsonrpc(method, params=None):
 
 
 def searchset(setid, setname):
-    encoded_setname = urllib.parse.quote(setname)
+    encoded_setname = quote(setname)
     xbmc.log('Searching for artwork for set: {}'.format(setname), level=xbmc.LOGDEBUG)
     data = tmdb_get('{0}search/collection?language=en-US&query={1}&page=1'.format(tmdb_url, encoded_setname))
     xbmc.log('Received data from TMDB API: {}'.format(data), level=xbmc.LOGDEBUG)
@@ -52,12 +53,12 @@ def searchset(setid, setname):
                 if 'art' in response['result']['setdetails']:
                     art = response['result']['setdetails']['art']
                     if 'poster' in art:
-                        url = urllib.parse.unquote(art['poster'])
+                        url = unquote(art['poster'])
                         current_poster = url[len('image://'):] if url.startswith('image://') else url
                     else:
                         current_poster = ''
                     if 'fanart' in art:
-                        url = urllib.parse.unquote(art['fanart'])
+                        url = unquote(art['fanart'])
                         current_fanart = url[len('image://'):] if url.startswith('image://') else url
                     else:
                         current_fanart = ''
